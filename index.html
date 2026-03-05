@@ -666,7 +666,10 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   document.getElementById('tab-' + name).classList.add('active');
-  if (name === 'chart') renderChart(recomputeTrend(loadData()));
+  if (name === 'chart') {
+    if (typeof Chart !== 'undefined') renderChart(recomputeTrend(loadData()));
+    else chartScript.onload = () => renderChart(recomputeTrend(loadData()));
+  }
   if (name === 'history') renderTable(recomputeTrend(loadData()));
 }
 
@@ -877,15 +880,16 @@ function todayDisplay() {
   return new Date().toLocaleDateString('en-US',{month:'short',day:'numeric'});
 }
 
+// Init immediately — doesn't need Chart.js
+initData();
+document.getElementById('todayStr').textContent = todayDisplay();
+document.getElementById('entryDate').value = todayISO();
+renderSnapshot(recomputeTrend(loadData()));
+checkTodayLogged();
+
+// Load Chart.js async — only needed for the Chart tab
 const chartScript = document.createElement('script');
 chartScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js';
-chartScript.onload = () => {
-  initData();
-  document.getElementById('todayStr').textContent = todayDisplay();
-  document.getElementById('entryDate').value = todayISO();
-  renderSnapshot(recomputeTrend(loadData()));
-  checkTodayLogged();
-};
 document.head.appendChild(chartScript);
 </script>
 </body>
