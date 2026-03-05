@@ -846,7 +846,7 @@ function logEntry() {
 
 // ── Delete entry ─────────────────────────────────────────────────
 function deleteEntry(date) {
-  if (!confirm(\`Delete entry for \${fmtDateFull(date)}?\`)) return;
+  if (!confirm(`Delete entry for ${fmtDateFull(date)}?`)) return;
   let data = loadData().filter(e => e.date !== date);
   saveData(data);
   renderTable(recomputeTrend(data));
