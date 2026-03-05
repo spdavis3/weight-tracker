@@ -662,13 +662,16 @@ function renderTable(entries) {
     <thead><tr>
       <th>Date</th><th>Wt</th><th>Δ</th><th>Trend</th><th>vs 175</th><th></th>
     </tr></thead>
-    <tbody>${rows.map(e => `<tr>
+    <tbody>${rows.map(e => `<tr data-date="${e.date}">
       <td class="td-date">${fmtDateFull(e.date)}</td>
       <td class="td-weight">${e.weight.toFixed(1)}</td>
       <td class="${e.wtChange>0?'change-up':e.wtChange<0?'change-down':'change-zero'}">${signStr(e.wtChange)}</td>
       <td>${e.trend.toFixed(1)}</td>
       <td class="${e.wtVsTarget>0?'change-up':e.wtVsTarget<0?'change-down':'change-zero'}">${signStr(e.wtVsTarget)}</td>
-      <td><button onclick="deleteEntry('${e.date}')" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 6px;">×</button></td>
+      <td class="td-actions">
+        <button onclick="editEntry('${e.date}',${e.weight})" style="background:none;border:none;color:var(--muted);font-size:1rem;cursor:pointer;padding:2px 4px;">✎</button>
+        <button onclick="deleteEntry('${e.date}')" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 4px;">×</button>
+      </td>
     </tr>`).join('')}</tbody>
   </table>`;
 }
@@ -801,6 +804,31 @@ function logEntry() {
 
   // Update button state if logging today
   if (date === todayISO()) checkTodayLogged();
+}
+
+// ── Edit entry ────────────────────────────────────────────────────
+function editEntry(date, currentWeight) {
+  const row = document.querySelector(`tr[data-date="${date}"]`);
+  row.querySelector('.td-weight').innerHTML =
+    `<input id="edit-${date}" type="number" step="0.1" min="100" max="400" value="${currentWeight}"
+      style="width:58px;background:#1e2128;border:1px solid var(--accent);border-radius:4px;
+             color:var(--text);padding:2px 4px;font-family:inherit;font-size:inherit;text-align:right">`;
+  row.querySelector('.td-actions').innerHTML =
+    `<button onclick="saveEdit('${date}')" style="background:none;border:none;color:var(--accent);font-size:1.1rem;cursor:pointer;padding:2px 4px;">✓</button>
+     <button onclick="renderTable(recomputeTrend(loadData()))" style="background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer;padding:2px 4px;">×</button>`;
+  document.getElementById(`edit-${date}`).focus();
+}
+
+function saveEdit(date) {
+  const w = parseFloat(document.getElementById(`edit-${date}`).value);
+  if (isNaN(w) || w < 100 || w > 400) { toast('Enter a valid weight'); return; }
+  let data = loadData();
+  const idx = data.findIndex(e => e.date === date);
+  if (idx >= 0) data[idx].weight = w;
+  saveData(data);
+  renderTable(recomputeTrend(data));
+  renderSnapshot(recomputeTrend(data));
+  toast('Updated!');
 }
 
 // ── Delete entry ─────────────────────────────────────────────────
