@@ -361,29 +361,6 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   /* ── Install banner ── */
-  .install-banner {
-    background: var(--surface);
-    border: 1px solid rgba(200,240,62,0.3);
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-  .install-banner svg { flex-shrink: 0; color: var(--accent); }
-  .install-banner-text { font-size: 0.72rem; line-height: 1.5; color: var(--muted); }
-  .install-banner-text strong { color: var(--text); display: block; margin-bottom: 2px; }
-  .install-close {
-    margin-left: auto;
-    background: none;
-    border: none;
-    color: var(--muted);
-    cursor: pointer;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-    padding: 4px;
-  }
 </style>
 </head>
 <body>
@@ -400,19 +377,7 @@
     </div>
   </header>
 
-  <!-- Install hint (shown only in browser, hidden in PWA) -->
-  <div class="install-banner" id="installBanner">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-      <path d="M12 2v13m0 0l-4-4m4 4l4-4M3 17v2a2 2 0 002 2h14a2 2 0 002-2v-2"/>
-    </svg>
-    <div class="install-banner-text">
-      <strong>Add to Home Screen</strong>
-      Tap the Share button in Safari, then "Add to Home Screen" to install this app.
-    </div>
-    <button class="install-close" onclick="document.getElementById('installBanner').style.display='none'">×</button>
-  </div>
-
-  <div class="log-hero">
+<div class="log-hero">
     <div class="log-hero-label">Enter today's weight</div>
     <div class="weight-input-wrap">
       <input type="number" class="weight-input-big" id="entryWeight"
@@ -575,12 +540,6 @@ if ('serviceWorker' in navigator) {
   `;
   const blob = new Blob([swCode], {type: 'application/javascript'});
   navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
-}
-
-// ── Hide install banner if already installed as PWA ───────────────
-if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone) {
-  const b = document.getElementById('installBanner');
-  if (b) b.style.display = 'none';
 }
 
 // ── Data & Constants ─────────────────────────────────────────────
